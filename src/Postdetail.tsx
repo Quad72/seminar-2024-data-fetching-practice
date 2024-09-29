@@ -14,13 +14,13 @@ interface PostDetailProps {
 }
 
 const PostDetail: React.FC<PostDetailProps> = ({ postId, body }) => {
-  const [allComments, setAllComments] = useState<comment[]>([]);
+  const [Comments, setComments] = useState<comment[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const allpostfetching = async () => {
+  const allpostfetching = async (Id: number) => {
     try {
       const response = await fetch(
-        'https://jsonplaceholder.typicode.com/comments',
+        `https://jsonplaceholder.typicode.com/posts/${Id}/comments`,
       );
       const data = (await response.json()) as comment[];
       return data;
@@ -33,10 +33,10 @@ const PostDetail: React.FC<PostDetailProps> = ({ postId, body }) => {
     let ignore = false;
     setLoading(true);
 
-    allpostfetching()
+    allpostfetching(postId)
       .then((comments) => {
         if (comments === undefined) throw new Error('No posts');
-        if (!ignore) setAllComments(comments);
+        if (!ignore) setComments(comments);
       })
       .catch(() => {
         console.error('Error fetching posts:');
@@ -48,10 +48,7 @@ const PostDetail: React.FC<PostDetailProps> = ({ postId, body }) => {
     return () => {
       ignore = true;
     };
-  }, []);
-  const filteredComments = allComments.filter(
-    (comment) => comment.postId === postId,
-  );
+  }, [postId]);
 
   if (loading) return <div>로딩 중...</div>;
 
@@ -63,8 +60,8 @@ const PostDetail: React.FC<PostDetailProps> = ({ postId, body }) => {
       </li>
       <h2 style={{ margin: '10px 0' }}>댓글</h2>
       <ul style={{ listStyleType: 'none', padding: '0 10px' }}>
-        {filteredComments.length > 0 ? (
-          filteredComments.map((comment) => (
+        {Comments.length > 0 ? (
+          Comments.map((comment) => (
             <li key={comment.id} style={{ margin: '20px 0' }}>
               <strong>
                 작성자: {comment.email} <br />
